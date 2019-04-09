@@ -20,8 +20,7 @@ function validate_parameters() {
   fi
 
   IFS="," read -a FILES <<< "${FILES_STRING}"
-  for i in "${FILES[@]}"
-  do
+  for i in "${FILES[@]}"; do
     if [ ! -f "$i" ]; then
       echo "ERROR: file $i does not exist."
       usage
@@ -42,9 +41,15 @@ function usage() {
   echo "    -h --help        Show this help and exit."
   echo ""
   echo "Environment variables"
-  echo "    GITHUB_SHA       The commit that will be tagged."
-  echo "    GITHUB_TOKEN     Credentials to access the Github API."
+  echo "    GITHUB_SHA        The commit that will be tagged."
+  echo "    GITHUB_TOKEN      Credentials to access the Github API."
 }
+
+TAG=
+DRAFT=
+PRERELEASE=
+NAME=
+BODY=
 
 while :; do
   case $1 in
@@ -53,10 +58,10 @@ while :; do
       exit
       ;;
     -p|--prerelease)
-      PRERELEASE=true
+      PRERELEASE="-p"
       ;;
     -d|--draft)
-      DRAFT=true
+      DRAFT="-d"
       ;;
     -t|--tag)
       if [ "$2" ]; then
@@ -69,7 +74,7 @@ while :; do
       ;;
     -n|--name)
       if [ "$2" ]; then
-        NAME=$2
+        NAME="--message \"$2\""
         shift
       else
         echo "ERROR: \"$1\" requires a non-empty option argument."
@@ -78,7 +83,7 @@ while :; do
       ;;
     -b|--body)
       if [ "$2" ]; then
-        BODY=$2
+        BODY="--message \"$2\""
         shift
       else
         echo "ERROR: \"$1\" requires a non-empty option argument."
@@ -108,8 +113,17 @@ while :; do
   shift
 done
 
+COMMIT="-t ${GITHUB_SHA}"
+
 validate_parameters
 
 # Github REST API for creating releases: https://developer.github.com/v3/repos/releases/#create-a-release
-# Github CLI API: https://hub.github.com/hub-api.1.html
-#hub ...
+# Github CLI releases: https://hub.github.com/hub-release.1.html
+
+FILES_ATTACH=
+
+for i in "${FILES[@]}"; do
+  FILES_ATTACH="-a \"${i}\" ${FILES_ATTACH}"
+done
+
+hub release create $NAME $BODY $DRAFT $PRERELEASE $FILES_ATTACH $COMMIT $TAG

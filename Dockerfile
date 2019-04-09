@@ -1,4 +1,4 @@
-FROM debian:9
+FROM debian:buster
 
 LABEL maintainer="Raik Bieniek <raik.bieniek@gmail.com>"
 LABEL com.github.actions.name="Create Github Release"
@@ -7,7 +7,7 @@ LABEL com.github.actions.icon="tag"
 LABEL com.github.actions.color="orange"
 
 RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends httpie && \
+    apt-get install -y --no-install-recommends hub && \
     rm -rf /var/lib/apt/lists/*
 
 COPY "entrypoint.sh" /
