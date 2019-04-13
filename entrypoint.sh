@@ -7,6 +7,13 @@ function validate_parameters() {
     exit
   fi
 
+  if [ -z "$MESSAGE" ]; then
+    echo "ERROR: A message must be passed."
+    usage
+    exit
+  fi
+
+
   if [ -z "$GITHUB_SHA" ]; then
     echo "ERROR: The environment variable GITHUB_SHA musst be set."
     usage
@@ -33,8 +40,7 @@ function validate_parameters() {
 function usage() {
   echo "Usage: $0 [options]"
   echo "    -t --tag         (required) The name for the Git tag to create for the release."
-  echo "    -n --name        A name for this release."
-  echo "    -b --body        A text describing the content of this release.."
+  echo "    -m --message     (required) A text describing the content of this release.."
   echo "    -p --prerelease  Mark this release as prerelease."
   echo "    -d --draft       Create a draft release instead of a normal one."
   echo "    -f --files       Files to attach to this release. Multiple files can be separated using a comma."
@@ -48,8 +54,7 @@ function usage() {
 TAG=
 DRAFT=
 PRERELEASE=
-NAME=
-BODY=
+MESSAGE=
 
 while :; do
   case $1 in
@@ -72,18 +77,9 @@ while :; do
         exit
       fi
       ;;
-    -n|--name)
+    -m|--message)
       if [ "$2" ]; then
-        NAME="--message \"$2\""
-        shift
-      else
-        echo "ERROR: \"$1\" requires a non-empty option argument."
-        exit
-      fi
-      ;;
-    -b|--body)
-      if [ "$2" ]; then
-        BODY="--message \"$2\""
+        MESSAGE="--message=\"$2\""
         shift
       else
         echo "ERROR: \"$1\" requires a non-empty option argument."
@@ -126,4 +122,4 @@ for i in "${FILES[@]}"; do
   FILES_ATTACH="-a \"${i}\" ${FILES_ATTACH}"
 done
 
-hub release create $NAME $BODY $DRAFT $PRERELEASE $FILES_ATTACH $COMMIT $TAG
+hub release create $MESSAGE $DRAFT $PRERELEASE $FILES_ATTACH $COMMIT $TAG

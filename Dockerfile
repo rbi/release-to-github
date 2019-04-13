@@ -7,9 +7,8 @@ LABEL com.github.actions.icon="tag"
 LABEL com.github.actions.color="orange"
 
 RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends hub && \
+    apt-get install -y --no-install-recommends ca-certificates hub && \
     rm -rf /var/lib/apt/lists/*
 
 COPY "entrypoint.sh" /
-
 ENTRYPOINT ["/entrypoint.sh"]
