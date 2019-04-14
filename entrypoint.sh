@@ -1,5 +1,8 @@
 #!/bin/bash
 
+IFS="
+"
+
 function validate_parameters() {
 
   if ( [ ! -z $TAG_FILE ] && [ ! -f $TAG_FILE] ); then
@@ -10,12 +13,6 @@ function validate_parameters() {
 
   if ( [ -z "$TAG" ] && [ -z $TAG_FILE ] ); then
     echo "ERROR: Tag name (-t or -x) must be passed."
-    usage
-    exit
-  fi
-
-  if [ -z "$GITHUB_SHA" ]; then
-    echo "ERROR: The environment variable GITHUB_SHA musst be set."
     usage
     exit
   fi
@@ -56,6 +53,7 @@ TAG=
 DRAFT=
 PRERELEASE=
 MESSAGE=
+COMMIT=
 
 while :; do
   case $1 in
@@ -90,7 +88,7 @@ while :; do
 
     -m|--message)
       if [ "$2" ]; then
-        MESSAGE="--message=\"$2\""
+        MESSAGE=--message=$2
         shift
       else
         echo "ERROR: \"$1\" requires a non-empty option argument."
@@ -120,25 +118,25 @@ while :; do
   shift
 done
 
-COMMIT="-t ${GITHUB_SHA}"
 
 validate_parameters
 
+if [ ! -z "$GITHUB_SHA" ]; then
+  COMMIT="-t ${GITHUB_SHA}"
+fi
+
 if [ -z "$MESSAGE" ]; then
-  MESSAGE="--message=\"automatic release\""
+  MESSAGE=--message="automatic release"
 fi
 
 if [ ! -z $TAG_FILE ]; then
   TAG=`cat $TAG_FILE`
 fi
 
-# Github REST API for creating releases: https://developer.github.com/v3/repos/releases/#create-a-release
-# Github CLI releases: https://hub.github.com/hub-release.1.html
-
 FILES_ATTACH=
-
 for i in "${FILES[@]}"; do
-  FILES_ATTACH="-a \"${i}\" ${FILES_ATTACH}"
+  FILES_ATTACH="-a${i}
+${FILES_ATTACH}"
 done
 
 hub release create $MESSAGE $DRAFT $PRERELEASE $FILES_ATTACH $COMMIT $TAG
