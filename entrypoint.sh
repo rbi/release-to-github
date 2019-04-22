@@ -23,14 +23,6 @@ function validate_parameters() {
     exit
   fi
 
-  IFS="," read -a FILES <<< "${FILES_STRING}"
-  for i in "${FILES[@]}"; do
-    if [ ! -f "$i" ]; then
-      echo "ERROR: file $i does not exist."
-      usage
-      exit
-    fi
-  done
 }
 
 
@@ -134,6 +126,7 @@ if [ ! -z $TAG_FILE ]; then
 fi
 
 FILES_ATTACH=
+IFS="," read -a FILES <<< "${FILES_STRING}"
 for i in "${FILES[@]}"; do
   FILES_ATTACH="-a${i}
 ${FILES_ATTACH}"
