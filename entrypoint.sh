@@ -5,7 +5,7 @@ IFS="
 
 function validate_parameters() {
 
-  if ( [ ! -z $TAG_FILE ] && [ ! -f $TAG_FILE] ); then
+  if ( [ ! -z $TAG_FILE ] && [ ! -f $TAG_FILE ] ); then
     echo "ERROR: Tag file $TAG_FILE does not exist."
     usage
     exit
